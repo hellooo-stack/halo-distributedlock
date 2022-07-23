@@ -1,10 +1,11 @@
-package site.hellooo.distributedlock;
+package site.hellooo.distributedlock.impl;
+
+import site.hellooo.distributedlock.DistributedLock;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 
-public abstract class AbstractDistributedLock implements Lock {
+public abstract class AbstractDistributedLock implements DistributedLock {
     @Override
     public void lock() {
         throw new UnsupportedOperationException("operation not supported yet!");

@@ -4,12 +4,14 @@ import java.io.Serializable;
 
 public interface LockState<T> extends Serializable {
 
-    String getName();
+//    get the identifier representing this state
+//    such as a redis key, a zookeeper path, a file name
+    String getIdentifier();
 
-    void setName(String name);
+    void setIdentifier(String identifier);
 
-    T getState();
+//    get the value in the state
+    T getValue();
 
-    void setState(T state);
-
+    void setValue(T value);
 }
