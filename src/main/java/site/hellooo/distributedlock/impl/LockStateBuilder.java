@@ -10,7 +10,7 @@ import site.hellooo.distributedlock.impl.redis.RedisLockState;
 
 public class LockStateBuilder {
 
-    private LockOptions DEFAULT_LOCK_OPTIONS = LockOptions.ofDefault();
+    private final LockOptions DEFAULT_LOCK_OPTIONS = LockOptions.ofDefault();
     private final Coordinator DEFAULT_COORDINATOR = DEFAULT_LOCK_OPTIONS.getCoordinator();
     private LockOptions lockOptions = DEFAULT_LOCK_OPTIONS;
     private Coordinator coordinator = DEFAULT_COORDINATOR;

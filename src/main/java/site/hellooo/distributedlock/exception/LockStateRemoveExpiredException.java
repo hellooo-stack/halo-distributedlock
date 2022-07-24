@@ -6,6 +6,7 @@ public class LockStateRemoveExpiredException extends IOException {
     public LockStateRemoveExpiredException() {
 
     }
+
     public LockStateRemoveExpiredException(String message) {
         super(message);
     }

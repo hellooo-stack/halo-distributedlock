@@ -82,7 +82,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         return currentNode;
     }
 
-//    enqueue node and return the prev node
+    //    enqueue node and return the prev node
     private Node enqueue(final Node node) {
 
         while (true) {

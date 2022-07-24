@@ -42,7 +42,7 @@ public class RedisLockState implements LockState<String> {
         this.value = value;
     }
 
-//    returned value: "ip-processId-threadId"
+    //    returned value: "ip-processId-threadId"
     private String generateDefaultValue() {
         return NetworkUtils.getLocalIP() + "-" + ProcessUtils.getProcessId() + "-" + Thread.currentThread().getId();
     }

@@ -22,7 +22,7 @@ public class LockOptions implements Reusable<LockOptions>, Serializable {
     //    milliseconds to lease per time
     private final long leaseMilliseconds;
 
-//    todo
+    //    todo
     private final Coordinator coordinator;
 
     private LockOptions(final String identifierPrefix,
