@@ -1,4 +1,4 @@
-package site.hellooo.distributedlock.impl;
+package site.hellooo.distributedlock.impl.redis;
 
 import site.hellooo.distributedlock.LockState;
 import site.hellooo.distributedlock.common.NetworkUtils;

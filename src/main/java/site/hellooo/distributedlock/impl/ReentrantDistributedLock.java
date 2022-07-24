@@ -10,6 +10,7 @@ import site.hellooo.distributedlock.enums.LockType;
 import site.hellooo.distributedlock.exception.GenericRuntimeLockException;
 import site.hellooo.distributedlock.exception.LockStateNotRemovedException;
 import site.hellooo.distributedlock.exception.LockStateNotSetException;
+import site.hellooo.distributedlock.impl.redis.LockCallbackFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,11 +29,10 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
     private AtomicReference<Node> tail = new AtomicReference<>();
 
 
-    public ReentrantDistributedLock(LockOptions lockOptions, String lockTarget, LockHandler lockHandler, LockCallback lockCallback) {
+    public ReentrantDistributedLock(LockOptions lockOptions, String lockTarget, LockHandler lockHandler) {
         this.lockOptions = lockOptions;
         this.lockTarget = lockTarget;
         this.lockHandler = lockHandler;
-        this.lockCallback = lockCallback;
 
         lockContext = new LockContext() {
             @Override
@@ -57,6 +57,9 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
             @Override
             public LockCallback lockCallback() {
+                if (lockCallback == null) {
+                    lockCallback = LockCallbackFactory.of(lockOptions.getCoordinator(), this);
+                }
                 return lockCallback;
             }
         };

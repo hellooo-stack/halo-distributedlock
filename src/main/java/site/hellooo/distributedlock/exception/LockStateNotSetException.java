@@ -10,4 +10,12 @@ public class LockStateNotSetException extends IOException {
     public LockStateNotSetException(String message) {
         super(message);
     }
+
+    public LockStateNotSetException(Throwable cause) {
+        super(cause);
+    }
+
+    public LockStateNotSetException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

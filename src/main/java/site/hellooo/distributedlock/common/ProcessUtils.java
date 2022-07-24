@@ -3,8 +3,9 @@ package site.hellooo.distributedlock.common;
 import java.lang.management.ManagementFactory;
 
 public class ProcessUtils {
+    private static final String DEFAULT_FALLBACK_PROCESS_ID = "-9999";
     public static String getProcessId() {
-        String fallbackProcessId = "-9999";
+
         try {
             String mxBeanName = ManagementFactory.getRuntimeMXBean().getName();
             String[] seperatedMxBeanName = mxBeanName.split("@");
@@ -14,10 +15,7 @@ public class ProcessUtils {
 
         }
 
-        return fallbackProcessId;
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        System.out.println(getProcessId());
+//        if no process id returned, return the default one
+        return DEFAULT_FALLBACK_PROCESS_ID;
     }
 }

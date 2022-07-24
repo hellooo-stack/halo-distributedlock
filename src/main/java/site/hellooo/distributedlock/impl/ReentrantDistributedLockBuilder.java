@@ -7,6 +7,8 @@ import site.hellooo.distributedlock.common.StringUtils;
 import site.hellooo.distributedlock.config.LockOptions;
 import site.hellooo.distributedlock.enums.Coordinator;
 import site.hellooo.distributedlock.exception.BuilderEssentialFieldNotSetException;
+import site.hellooo.distributedlock.impl.redis.RedisLockCallback;
+import site.hellooo.distributedlock.impl.redis.RedisLockHandler;
 
 public class ReentrantDistributedLockBuilder {
 
@@ -63,15 +65,15 @@ public class ReentrantDistributedLockBuilder {
                     lockHandler = new RedisLockHandler(this.jedis);
                 }
 
-                if (lockCallback == null) {
-                    lockCallback = new RedisLockCallback();
-                }
+//                if (lockCallback == null) {
+//                    lockCallback = new RedisLockCallback();
+//                }
                 break;
             case REDIS_CLUSTER:
             case ZOOKEEPER:
                 throw new UnsupportedOperationException("Fatal: coordinator with type '"+ coordinator.getName() + "' is not implemented yet!");
         }
 
-        return new ReentrantDistributedLock(lockOptions, lockTarget, lockHandler, lockCallback);
+        return new ReentrantDistributedLock(lockOptions, lockTarget, lockHandler);
     }
 }

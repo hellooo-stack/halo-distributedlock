@@ -6,6 +6,7 @@ import site.hellooo.distributedlock.common.ArgChecker;
 import site.hellooo.distributedlock.common.StringUtils;
 import site.hellooo.distributedlock.config.LockOptions;
 import site.hellooo.distributedlock.enums.Coordinator;
+import site.hellooo.distributedlock.impl.redis.RedisLockState;
 
 public class LockStateBuilder {
 
