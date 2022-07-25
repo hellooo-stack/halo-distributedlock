@@ -44,7 +44,7 @@ public class LockStateBuilder {
     }
 
     public LockState<?> build() {
-        ArgChecker.check(StringUtils.isEmpty(identifier), "identifier is empty (expected not empty).");
+        ArgChecker.check(!StringUtils.isEmpty(identifier), "identifier is empty (expected not empty).");
 //        ArgChecker.check(value != null, "value is null (expected not null).");
 
         String generatedIdentifier = lockOptions.getIdentifierPrefix() + this.identifier;
@@ -52,7 +52,7 @@ public class LockStateBuilder {
 
         switch (coordinator) {
             case REDIS_SINGLETON:
-                if (!(this.value instanceof String)) {
+                if (this.value != null && !(this.value instanceof String)) {
                     throw new IllegalArgumentException("Fatal: invalid type of 'value', type is " + value.getClass().getSimpleName());
                 }
 

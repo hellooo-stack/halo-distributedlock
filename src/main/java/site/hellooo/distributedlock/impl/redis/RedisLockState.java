@@ -11,6 +11,7 @@ public class RedisLockState implements LockState<String> {
 
     public RedisLockState(String identifier) {
         this.identifier = identifier;
+        this.value = generateDefaultValue();
     }
 
     public RedisLockState(String identifier, String value) {

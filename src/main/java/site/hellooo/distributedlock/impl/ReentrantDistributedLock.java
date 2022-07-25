@@ -63,6 +63,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
                 return lockCallback;
             }
         };
+        lockCallback = LockCallbackFactory.of(lockOptions.getCoordinator(), lockContext);
     }
 
     private Node addWaiter() {
@@ -152,7 +153,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
         LockState<?> lockState = new LockStateBuilder(lockOptions)
                 .identifier(lockTarget)
-//                todo need a value builder for difference state type
+//                todo: need a value builder for difference state type
 //                .value()
                 .build();
         boolean locked = false;
