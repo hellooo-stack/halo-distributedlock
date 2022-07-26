@@ -18,15 +18,14 @@ import java.util.concurrent.locks.LockSupport;
 
 public class ReentrantDistributedLock extends AbstractDistributedLock {
 
-    private LockContext lockContext;
-    private LockOptions lockOptions;
-    private String lockTarget;
-    private LockHandler lockHandler;
-    private LockCallback lockCallback;
-    private AtomicInteger holdingCount = new AtomicInteger(0);
-
-    private AtomicReference<Node> head = new AtomicReference<>();
-    private AtomicReference<Node> tail = new AtomicReference<>();
+    private final LockContext lockContext;
+    private final LockOptions lockOptions;
+    private final String lockTarget;
+    private final LockHandler lockHandler;
+    private final LockCallback lockCallback;
+    private final AtomicInteger holdingCount = new AtomicInteger(0);
+    private final AtomicReference<Node> head = new AtomicReference<>();
+    private final AtomicReference<Node> tail = new AtomicReference<>();
 
 
     public ReentrantDistributedLock(LockOptions lockOptions, String lockTarget, LockHandler lockHandler) {
@@ -35,6 +34,9 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         this.lockHandler = lockHandler;
 
         lockContext = new LockContext() {
+            private AtomicReference<Thread> holdingThread = new AtomicReference<>();
+            private AtomicReference<LockState<?>> holdingLockState = new AtomicReference<>();
+
             @Override
             public LockOptions lockOptions() {
                 return lockOptions;
@@ -42,12 +44,12 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
             @Override
             public AtomicReference<Thread> holdingThread() {
-                return new AtomicReference<>(null);
+                return holdingThread;
             }
 
             @Override
             public AtomicReference<LockState<?>> holdingLockState() {
-                return new AtomicReference<>(null);
+                return holdingLockState;
             }
 
             @Override
@@ -57,9 +59,9 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
             @Override
             public LockCallback lockCallback() {
-                if (lockCallback == null) {
-                    lockCallback = LockCallbackFactory.of(lockOptions.getCoordinator(), this);
-                }
+//                if (lockCallback == null) {
+//                    lockCallback = LockCallbackFactory.of(lockOptions.getCoordinator(), this);
+//                }
                 return lockCallback;
             }
         };
@@ -145,11 +147,11 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
     @Override
     public boolean tryLock() {
+
         if (Thread.currentThread() == lockContext.holdingThread().get()) {
             this.holdingCount.incrementAndGet();
             return true;
         }
-
 
         LockState<?> lockState = new LockStateBuilder(lockOptions)
                 .identifier(lockTarget)
@@ -165,8 +167,12 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         }
 
         if (locked) {
-            AtomicReference<Thread> holdingThread = lockContext.holdingThread();
-            holdingThread.set(Thread.currentThread());
+            Thread holdingThread = lockContext.holdingThread().get();
+            lockContext.holdingThread().compareAndSet(holdingThread, Thread.currentThread());
+
+            LockState<?> holdingLockState = lockContext.holdingLockState().get();
+            lockContext.holdingLockState().compareAndSet(holdingLockState, lockState);
+
             this.holdingCount.set(1);
 
             lockCallback.afterLocked(lockContext);
@@ -177,8 +183,9 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
     @Override
     public void unlock() {
-        AtomicReference<Thread> holdThreadReference = lockContext.holdingThread();
-        Thread holdingThread = holdThreadReference.get();
+
+        AtomicReference<Thread> holdingThreadReference = lockContext.holdingThread();
+        Thread holdingThread = holdingThreadReference.get();
         if (holdingThread != null && Thread.currentThread() != holdingThread) {
             throw new GenericRuntimeLockException("Fatal: different thread between lock and unlock, PLEASE CHECK!!!");
         }
@@ -197,7 +204,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         } catch (LockStateNotRemovedException ignored) {
 
         } finally {
-            holdThreadReference.compareAndSet(holdingThread, null);
+            holdingThreadReference.compareAndSet(holdingThread, null);
             unparkQueueHead();
         }
     }
@@ -212,7 +219,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         return lockHandler.coordinatorType();
     }
 
-    static class Node {
+    private static class Node {
         final AtomicReference<Node> prev = new AtomicReference<>();
         final AtomicReference<Node> next = new AtomicReference<>();
         final Thread thread;

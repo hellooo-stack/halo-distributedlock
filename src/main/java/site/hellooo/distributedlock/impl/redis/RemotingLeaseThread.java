@@ -5,10 +5,11 @@ import site.hellooo.distributedlock.LockContext;
 public class RemotingLeaseThread extends Thread {
 
     final Object synchronizer = new Object();
-    private LockContext lockContext;
+    private final LockContext lockContext;
     private boolean shutdown = false;
 
     public RemotingLeaseThread(LockContext lockContext) {
+        setDaemon(true);
         this.lockContext = lockContext;
     }
 
@@ -18,7 +19,7 @@ public class RemotingLeaseThread extends Thread {
             synchronized (synchronizer) {
                 try {
                     doLease();
-                    wait(lockContext.lockOptions().getLeaseIntervalMilliseconds());
+                    synchronizer.wait(lockContext.lockOptions().getLeaseIntervalMilliseconds());
                 } catch (InterruptedException e) {
                     shutdown = true;
                 }

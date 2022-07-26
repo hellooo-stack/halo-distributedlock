@@ -16,7 +16,7 @@ public class RedisLockCallback implements LockCallback {
 
     }
 
-    private RedisLockCallback(LockContext lockContext) {
+    public RedisLockCallback(LockContext lockContext) {
         this.lockContext = lockContext;
     }
 
