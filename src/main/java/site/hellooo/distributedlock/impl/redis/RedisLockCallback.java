@@ -64,9 +64,10 @@ public class RedisLockCallback implements LockCallback {
 
     @Override
     public void afterQueued(LockContext lockContext) {
-//        todo
 //        if current process not holding the lock, then we should start the retry lock thread
-//        startRetryLockThread
+        if (lockContext.holdingThread().get() == null) {
+            startRetryLockThread();
+        }
     }
 
     @Override

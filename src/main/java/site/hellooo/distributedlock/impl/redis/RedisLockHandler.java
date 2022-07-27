@@ -15,7 +15,7 @@ import java.util.Collections;
 
 public class RedisLockHandler implements LockHandler {
 
-    private Jedis jedis;
+    private final Jedis jedis;
 
     public RedisLockHandler(Jedis jedis) {
         this.jedis = jedis;
