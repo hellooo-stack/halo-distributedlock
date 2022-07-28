@@ -2,32 +2,29 @@ package site.hellooo.distributedlock.impl.redis;
 
 import site.hellooo.distributedlock.LockContext;
 
-public class RemotingLeaseThread extends Thread {
-
-    final Object synchronizer = new Object();
-    private final LockContext lockContext;
-    private boolean shutdown = false;
+public class RemotingLeaseThread extends AbstractRemotingThread {
 
     public RemotingLeaseThread(LockContext lockContext) {
-        setDaemon(true);
-        this.lockContext = lockContext;
+        super(lockContext);
     }
 
     @Override
-    public void run() {
-        while (!shutdown) {
-            synchronized (synchronizer) {
-                try {
-                    doLease();
-                    synchronizer.wait(lockContext.lockOptions().getLeaseIntervalMilliseconds());
-                } catch (InterruptedException e) {
-                    shutdown = true;
-                }
-            }
-        }
+    protected void execute() throws InterruptedException {
+        doLease();
+    }
+
+    @Override
+    protected long getExecuteInterval() {
+        return lockContext.lockOptions().getLeaseIntervalMilliseconds();
     }
 
     private void doLease() throws InterruptedException {
-        System.out.println("i am leasing...");
+
+        if (!(lockContext.lockHandler() instanceof RedisLockHandler)) {
+            throw new IllegalArgumentException("Fatal: implementation of lockHandler is not redis, please check!");
+        }
+
+        RedisLockHandler lockHandler = (RedisLockHandler) lockContext.lockHandler();
+        lockHandler.doLease(lockContext);
     }
 }

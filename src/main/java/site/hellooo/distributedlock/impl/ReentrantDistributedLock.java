@@ -38,6 +38,11 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
             private AtomicReference<LockState<?>> holdingLockState = new AtomicReference<>();
 
             @Override
+            public String lockTarget() {
+                return lockTarget;
+            }
+
+            @Override
             public LockOptions lockOptions() {
                 return lockOptions;
             }

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * context of the lock, holding the necessary message for handling the lock operation
  */
 public interface LockContext {
+    String lockTarget();
     //    the user config of this lock
     LockOptions lockOptions();
 

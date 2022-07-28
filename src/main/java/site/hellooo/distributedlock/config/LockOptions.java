@@ -17,7 +17,7 @@ public class LockOptions implements Reusable<LockOptions>, Serializable {
     private final String identifierSuffix;
     //    milliseconds of retry thread execute interval
     private final long retryIntervalMilliseconds;
-    //    milliseconds of lease thread execute interval
+    //    milliseconds of lease thread execute interval, should be smaller than leaseMilliseconds
     private final long leaseIntervalMilliseconds;
     //    milliseconds to lease per time
     private final long leaseMilliseconds;

@@ -5,6 +5,7 @@ import redis.clients.jedis.params.SetParams;
 import site.hellooo.distributedlock.LockContext;
 import site.hellooo.distributedlock.LockHandler;
 import site.hellooo.distributedlock.LockState;
+import site.hellooo.distributedlock.common.StringUtils;
 import site.hellooo.distributedlock.enums.Coordinator;
 import site.hellooo.distributedlock.exception.LockStateNotRemovedException;
 import site.hellooo.distributedlock.exception.LockStateNotSetException;
@@ -74,5 +75,47 @@ public class RedisLockHandler implements LockHandler {
     @Override
     public Coordinator coordinatorType() {
         return Coordinator.REDIS_SINGLETON;
+    }
+
+    public boolean doLease(LockContext lockContext) {
+
+        if (Thread.currentThread() != lockContext.holdingThread().get()) {
+            return false;
+        }
+
+        String leaseScript = "if (redis.call('get', KEYS[1]) == ARGV[1]) then return redis.call('pexpire', KEYS[1], ARGV[2]); else return nil; end;";
+
+        Object leaseResult = null;
+        try {
+            long leaseMilliseconds = lockContext.lockOptions().getLeaseMilliseconds();
+            long leaseIntervalMilliseconds = lockContext.lockOptions().getLeaseIntervalMilliseconds();
+//            should add log here, lease value should not be greater than interval value
+            if (leaseMilliseconds >= leaseIntervalMilliseconds) {
+                leaseMilliseconds = leaseIntervalMilliseconds;
+            }
+
+            LockState<?> lockState = lockContext.holdingLockState().get();
+//            if success, value will be "1"
+            leaseResult = jedis.eval(leaseScript, Collections.singletonList(lockState.getIdentifier()), Collections.singletonList(leaseMilliseconds + ""));
+        } catch (Exception e) {
+
+        }
+
+        return "1".equals(leaseResult);
+    }
+
+    public boolean doRetry(LockContext lockContext) {
+
+        boolean needRetry = false;
+        try {
+            String lockState = jedis.get(lockContext.lockTarget());
+            if (StringUtils.isNotEmpty(lockState)) {
+                needRetry = true;
+            }
+        } catch (Exception e) {
+
+        }
+
+        return needRetry;
     }
 }
