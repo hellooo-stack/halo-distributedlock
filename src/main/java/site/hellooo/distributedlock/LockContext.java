@@ -24,4 +24,6 @@ public interface LockContext {
     LockHandler lockHandler();
 
     LockCallback lockCallback();
+
+    DistributedLock currentLock();
 }

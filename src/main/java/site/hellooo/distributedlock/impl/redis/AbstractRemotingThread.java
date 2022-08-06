@@ -2,14 +2,15 @@ package site.hellooo.distributedlock.impl.redis;
 
 import site.hellooo.distributedlock.LockContext;
 
-public abstract class AbstractRemotingThread extends Thread {
+// this class is only design for redis business processing
+abstract class AbstractRemotingThread extends Thread {
 
-    final Object synchronizer = new Object();
+    private final Object synchronizer = new Object();
     private boolean shutdown = false;
 
     protected final LockContext lockContext;
 
-    public AbstractRemotingThread(LockContext lockContext) {
+    protected AbstractRemotingThread(LockContext lockContext) {
         setDaemon(true);
         this.lockContext = lockContext;
     }

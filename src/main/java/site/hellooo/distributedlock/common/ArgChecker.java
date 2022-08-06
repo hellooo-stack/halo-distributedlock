@@ -19,6 +19,12 @@ public final class ArgChecker {
         }
     }
 
+    public static <T> void checkNotNull(T ref, String message) {
+        if (ref == null) {
+            throw new NullPointerException(stringValue(message));
+        }
+    }
+
     private static String stringValue(String message) {
         return message == null ? StringUtils.empty() : message;
     }

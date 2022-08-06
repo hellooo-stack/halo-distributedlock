@@ -1,16 +1,12 @@
 package site.hellooo.distributedlock.impl;
 
-import site.hellooo.distributedlock.LockCallback;
-import site.hellooo.distributedlock.LockContext;
-import site.hellooo.distributedlock.LockHandler;
-import site.hellooo.distributedlock.LockState;
+import site.hellooo.distributedlock.*;
 import site.hellooo.distributedlock.config.LockOptions;
 import site.hellooo.distributedlock.enums.Coordinator;
 import site.hellooo.distributedlock.enums.LockType;
 import site.hellooo.distributedlock.exception.GenericRuntimeLockException;
 import site.hellooo.distributedlock.exception.LockStateNotRemovedException;
 import site.hellooo.distributedlock.exception.LockStateNotSetException;
-import site.hellooo.distributedlock.impl.redis.LockCallbackFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -34,8 +30,8 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         this.lockHandler = lockHandler;
 
         lockContext = new LockContext() {
-            private AtomicReference<Thread> holdingThread = new AtomicReference<>();
-            private AtomicReference<LockState<?>> holdingLockState = new AtomicReference<>();
+            private final AtomicReference<Thread> holdingThread = new AtomicReference<>();
+            private final AtomicReference<LockState<?>> holdingLockState = new AtomicReference<>();
 
             @Override
             public String lockTarget() {
@@ -64,10 +60,12 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
             @Override
             public LockCallback lockCallback() {
-//                if (lockCallback == null) {
-//                    lockCallback = LockCallbackFactory.of(lockOptions.getCoordinator(), this);
-//                }
                 return lockCallback;
+            }
+
+            @Override
+            public DistributedLock currentLock() {
+                return ReentrantDistributedLock.this;
             }
         };
         lockCallback = LockCallbackFactory.of(lockOptions.getCoordinator(), lockContext);
@@ -75,9 +73,9 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
     private Node addWaiter() {
 
-        Node currentNode = new Node(Thread.currentThread());
+        final Node currentNode = new Node(Thread.currentThread());
 
-        Node prev = tail.get();
+        final Node prev = tail.get();
         if (prev != null) {
             if (tail.compareAndSet(prev, currentNode)) {
                 prev.next.set(currentNode);
@@ -90,11 +88,11 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         return currentNode;
     }
 
-    //    enqueue node and return the prev node
+//    enqueue node and return the prev node
     private Node enqueue(final Node node) {
 
         while (true) {
-            Node prev = tail.get();
+            final Node prev = tail.get();
             if (prev == null) {
                 Node newHead = new Node(null);
                 newHead.next.set(node);
@@ -117,7 +115,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
         while (true) {
             final Node prev = node.prev.get();
-//            only if prev node is head, ant then we try to get lock
+//            only if prev node is head, and then we try to get the lock
             if (prev == head.get() && tryLock()) {
 //                if tryLock success, it means that the prev node has release the lock,
 //                so we need to remove it from the queue
@@ -133,7 +131,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         }
     }
 
-    private void unparkQueueHead() {
+    public void unparkQueueHead() {
         Node headNode = head.get();
         if (headNode != null && headNode.next.get() != null) {
             Thread thread = headNode.next.get().thread;
@@ -191,20 +189,25 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
         AtomicReference<Thread> holdingThreadReference = lockContext.holdingThread();
         Thread holdingThread = holdingThreadReference.get();
-        if (holdingThread != null && Thread.currentThread() != holdingThread) {
-            throw new GenericRuntimeLockException("Fatal: different thread between lock and unlock, PLEASE CHECK!!!");
+        if (holdingThread == null || holdingThread != Thread.currentThread()) {
+            String causeMessage = holdingThread == null ?
+                    "Fatal: holdingThread is null, when does lock released? PLEASE CHECK!!!"
+                    :
+                    "Fatal: different thread between lock and unlock, PLEASE CHECK!!!";
+            throw new GenericRuntimeLockException(causeMessage);
         }
 
         if (this.holdingCount.decrementAndGet() > 0) {
             return;
         }
 
-        AtomicReference<LockState<?>> lockStateReference = lockContext.holdingLockState();
-        if (lockStateReference.get() == null) {
-            throw new GenericRuntimeLockException("Fatal: context not holding a lockState, PLEASE CHECK!!!");
+        AtomicReference<LockState<?>> holdingLockStateReference = lockContext.holdingLockState();
+        LockState<?> holdingLockState = holdingLockStateReference.get();
+        if (holdingLockState == null) {
+            throw new GenericRuntimeLockException("Fatal: holdingLockState is null, when does it removed? PLEASE CHECK!!!");
         }
         try {
-            lockHandler.removeState(lockStateReference.get(), lockContext);
+            lockHandler.removeState(holdingLockState, lockContext);
             lockCallback.afterUnlocked(lockContext);
         } catch (LockStateNotRemovedException ignored) {
 

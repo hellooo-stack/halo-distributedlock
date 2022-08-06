@@ -99,11 +99,11 @@ public class LockOptions implements Reusable<LockOptions>, Serializable {
         private static final String DEFAULT_IDENTIFIER_PREFIX = "";
         private static final String DEFAULT_IDENTIFIER_SUFFIX = "";
 
-        //        默认20毫秒重试一次
+//        默认20毫秒重试一次
         private static final long DEFAULT_RETRY_INTERVAL_MILLISECONDS = 10L;
-        //        默认1秒续期一次
+//        默认1秒续期一次
         private static final long DEFAULT_LEASE_INTERVAL_MILLISECONDS = 1000L;
-        //        默认续期一次增加5秒 （todo 记得处理：过期事件小于1秒的时候才续期）
+//        默认每次续期都将过期时间设置为5秒
         private static final long DEFAULT_LEASE_MILLISECONDS = 5000L;
 
         private static final Coordinator DEFAULT_COORDINATOR = Coordinator.REDIS_SINGLETON;

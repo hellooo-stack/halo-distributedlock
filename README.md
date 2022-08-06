@@ -11,6 +11,7 @@
 
 3. implemented:
 
-
 4. test schedule:
 
+5. what problems have I meet
+  - how to test private method: [sloved](https://stackoverflow.com/questions/34571/how-do-i-test-a-class-that-has-private-methods-fields-or-inner-classes)

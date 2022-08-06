@@ -1,6 +1,8 @@
 package site.hellooo.distributedlock.impl.redis;
 
 import site.hellooo.distributedlock.LockContext;
+import site.hellooo.distributedlock.common.ClassUtils;
+import site.hellooo.distributedlock.impl.ReentrantDistributedLock;
 
 public class RemotingRetryLockThread extends AbstractRemotingThread {
 
@@ -18,15 +20,23 @@ public class RemotingRetryLockThread extends AbstractRemotingThread {
         return lockContext.lockOptions().getRetryIntervalMilliseconds();
     }
 
-    private void doRetry() {
+    private void doRetry() throws InterruptedException {
 
-        if (!(lockContext.lockHandler() instanceof RedisLockHandler)) {
-            throw new IllegalArgumentException("Fatal: implementation of lockHandler is not redis, please check!");
+        if (lockContext.holdingThread().get() != null) {
+            throw new InterruptedException("MSG: lock state holding by current process, no need to fetch lock state in coordinator!");
         }
 
-//        todo need some threading check
+        if (!(lockContext.lockHandler() instanceof RedisLockHandler)) {
+            throw new IllegalArgumentException("Fatal: implementation of lockHandler is not for redis, real type=[" + ClassUtils.getObjClassName(lockContext.lockHandler()) + "], PLEASE CHECK!!!");
+        }
 
         RedisLockHandler lockHandler = (RedisLockHandler) lockContext.lockHandler();
-        lockHandler.doRetry(lockContext);
+        boolean isStateExists = lockHandler.checkStateExists(lockContext.lockTarget());
+        if (!isStateExists) {
+//            lock hold by other process has been released,
+//            then we unpark queued head thread in current process
+            ReentrantDistributedLock lock = (ReentrantDistributedLock) lockContext.currentLock();
+            lock.unparkQueueHead();
+        }
     }
 }

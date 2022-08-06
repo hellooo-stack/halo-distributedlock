@@ -7,8 +7,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class RedisLockCallback implements LockCallback {
 
-    private AtomicReference<Thread> leaseThreadReference = new AtomicReference<>();
-    private AtomicReference<Thread> retryLockThreadReference = new AtomicReference<>();
+    /**
+     * this thread is responsible for lease the redis key expire time
+     */
+    private final AtomicReference<Thread> leaseThreadReference = new AtomicReference<>();
+
+    /**
+     * this thread is responsible for communicating with the coordinator to
+     * tryLock endlessly when no thread of current process hold the lock
+     */
+    private final AtomicReference<Thread> retryLockThreadReference = new AtomicReference<>();
 
     private LockContext lockContext;
 
@@ -25,10 +33,10 @@ public class RedisLockCallback implements LockCallback {
         while (retryLockThread == null || retryLockThread.getState() == Thread.State.TERMINATED) {
             if (retryLockThreadReference.compareAndSet(retryLockThread, new RemotingRetryLockThread(lockContext))) {
                 retryLockThread = retryLockThreadReference.get();
+//                one process have only one running retryLockThread
+                retryLockThread.start();
             }
         }
-
-        retryLockThread.start();
     }
 
     private void shutdownRetryLockThread() {
@@ -63,16 +71,11 @@ public class RedisLockCallback implements LockCallback {
     }
 
     @Override
-    public void afterQueued(LockContext lockContext) {
+    public void beforeParking(LockContext lockContext) {
 //        if current process not holding the lock, then we should start the retry lock thread
         if (lockContext.holdingThread().get() == null) {
             startRetryLockThread();
         }
-    }
-
-    @Override
-    public void beforeParking(LockContext lockContext) {
-        startRetryLockThread();
     }
 
     @Override
