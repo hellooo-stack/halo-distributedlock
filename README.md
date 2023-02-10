@@ -1,17 +1,58 @@
-1. memo:
-// 锁的元数据信息
-// 加锁过程的扩展点
-// 解锁过程的扩展点
-// 异常的扩展点
-// 数据源
+# DistributedLock
+
+[![Maven Central](https://img.shields.io/maven-central/v/site.hellooo/hellooo-distributedlock)](https://img.shields.io/maven-central/v/site.hellooo/hellooo-distributedlock)
+[![GitHub license](https://img.shields.io/github/license/hellooo-stack/hellooo-distributedlock)](https://img.shields.io/github/license/hellooo-stack/hellooo-distributedlock)
+
+DistributedLock is a lightweight distributed lock framework that provides reliable consistency features. It can be used with only the Lock interface.
 
 
-2. features:
+# Features
+- Reentrant locking
+- Supports tryLock(), lock(), unlock() operations
+- Supports lock leasing
 
+# Quick Start
+Step one: Add maven dependency
+```xml
+<dependency>
+    <groupId>site.hellooo</groupId>
+    <artifactId>hellooo-distributedlock</artifactId>
+    <version>>${hellooo-distributedlock.version}</version>
+</dependency>
+```
 
-3. implemented:
+Step two: Add customize configuration by annotation
+```java
+public class Main {
+    public static void main(String[] args) {
+        LockOptions lockOptions = LockOptions.options()
+                .build();
 
-4. test schedule:
+//        define the redis source
+        JedisPool pool = new JedisPool("localhost", 6379);
+        for (int i = 0; i < 10; i++) {
+            final int threadNumber = i;
+            Thread thread = new Thread(() -> {
+                Thread.currentThread().setName("Thread " + threadNumber);
 
-5. what problems have I meet
-  - how to test private method: [sloved](https://stackoverflow.com/questions/34571/how-do-i-test-a-class-that-has-private-methods-fields-or-inner-classes)
+                try (Jedis jedis = pool.getResource()) {
+                    try {
+                        Lock lock = new ReentrantDistributedLock(lockOptions, "my_lock", new RedisLockHandler(jedis));
+//                        lock 
+                        lock.lock();
+                        System.out.println("thread" + Thread.currentThread().getName() + " locked!");
+                        Thread.sleep(1000);
+                        System.out.println("thread" + Thread.currentThread().getName() + " lock released!");
+//                        unlock
+                        lock.unlock();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
+        }
+    }
+}
+
+```
