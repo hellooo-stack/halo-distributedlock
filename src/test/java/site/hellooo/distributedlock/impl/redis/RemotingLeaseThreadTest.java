@@ -1,5 +1,9 @@
 package site.hellooo.distributedlock.impl.redis;
 
-public class RemotingLeaseThreadTest {
+import org.junit.Test;
 
+public class RemotingLeaseThreadTest {
+    @Test
+    public void testConstructor() {
+    }
 }
