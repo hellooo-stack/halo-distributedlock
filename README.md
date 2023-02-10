@@ -1,13 +1,15 @@
 # DistributedLock
 
-[![Maven Central](https://img.shields.io/maven-central/v/site.hellooo/hellooo-distributedlock)](https://img.shields.io/maven-central/v/site.hellooo/hellooo-distributedlock)
-[![GitHub license](https://img.shields.io/github/license/hellooo-stack/hellooo-distributedlock)](https://img.shields.io/github/license/hellooo-stack/hellooo-distributedlock)
+![Build](https://img.shields.io/github/actions/workflow/status/hellooo-stack/hellooo-distributedlock/maven.yml)
+![Code Size](https://img.shields.io/github/languages/code-size/hellooo-stack/hellooo-distributedlock)
+![Maven Central](https://img.shields.io/maven-central/v/site.hellooo/hellooo-distributedlock)
+![GitHub license](https://img.shields.io/github/license/hellooo-stack/hellooo-distributedlock)
 
 DistributedLock is a lightweight distributed lock framework that provides reliable consistency features. It can be used with only the Lock interface.
 
 
 # Features
-- Reentrant locking
+- Reentrant distributed locking
 - Supports tryLock(), lock(), unlock() operations
 - Supports lock leasing
 
@@ -21,7 +23,7 @@ Step one: Add maven dependency
 </dependency>
 ```
 
-Step two: Add customize configuration by annotation
+Step two: lock your resources with Lock.lock()
 ```java
 public class Main {
     public static void main(String[] args) {
