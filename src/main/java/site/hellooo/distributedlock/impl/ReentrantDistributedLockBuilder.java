@@ -1,7 +1,6 @@
 package site.hellooo.distributedlock.impl;
 
-import redis.clients.jedis.Jedis;
-import site.hellooo.distributedlock.LockCallback;
+import redis.clients.jedis.JedisPool;
 import site.hellooo.distributedlock.LockHandler;
 import site.hellooo.distributedlock.common.StringUtils;
 import site.hellooo.distributedlock.config.LockOptions;
@@ -18,9 +17,8 @@ public class ReentrantDistributedLockBuilder {
     private String lockTarget = null;
 
     private LockHandler lockHandler = null;
-    private LockCallback lockCallback = null;
 
-    private Jedis jedis;
+    private JedisPool jedisPool;
 
     public ReentrantDistributedLockBuilder lockOptions(LockOptions lockOptions) {
         this.lockOptions = lockOptions;
@@ -37,13 +35,8 @@ public class ReentrantDistributedLockBuilder {
         return this;
     }
 
-    public ReentrantDistributedLockBuilder lockCallback(LockCallback lockCallback) {
-        this.lockCallback = lockCallback;
-        return this;
-    }
-
-    public ReentrantDistributedLockBuilder jedis(Jedis jedis) {
-        this.jedis = jedis;
+    public ReentrantDistributedLockBuilder jedisPool(JedisPool jedisPool) {
+        this.jedisPool = jedisPool;
         return this;
     }
 
@@ -56,17 +49,13 @@ public class ReentrantDistributedLockBuilder {
         Coordinator coordinator = lockOptions.getCoordinator();
         switch (coordinator) {
             case REDIS_SINGLETON:
-                if (this.jedis == null) {
+                if (this.jedisPool == null) {
                     throw new BuilderEssentialFieldNotSetException("Fatal: miss essential component 'jedis'!");
                 }
 
                 if (lockHandler == null) {
-                    lockHandler = new RedisLockHandler(this.jedis);
+                    lockHandler = new RedisLockHandler(this.jedisPool);
                 }
-
-//                if (lockCallback == null) {
-//                    lockCallback = new RedisLockCallback();
-//                }
                 break;
             case REDIS_CLUSTER:
             case ZOOKEEPER:

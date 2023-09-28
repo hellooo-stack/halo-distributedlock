@@ -8,19 +8,18 @@ import java.util.concurrent.atomic.AtomicReference;
  * context of the lock, holding the necessary message for handling the lock operation
  */
 public interface LockContext {
-    String lockTarget();
-    //    the user config of this lock
-    LockOptions lockOptions();
+    String target();
+    // user options of the lock
+    LockOptions options();
 
-    //    thread which is holding the lock in current process
-//    return value should not be null
-//    todo add annotation
+    // thread which is holding the lock in current process
+    // return value should not be null
     AtomicReference<Thread> holdingThread();
 
-    //    lockState of the holding thread in current process
+    // lockState of the holding thread in current process
     AtomicReference<LockState<?>> holdingLockState();
 
-    //    operation handler for dealing with the coordinator
+    // operation handler for dealing with the coordinator
     LockHandler lockHandler();
 
     LockCallback lockCallback();

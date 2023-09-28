@@ -16,7 +16,7 @@ public class ProcessUtils {
 
         }
 
-//        if no process id returned, return the default one
+        // if no process id returned, return the default one
         return DEFAULT_FALLBACK_PROCESS_ID;
     }
 }

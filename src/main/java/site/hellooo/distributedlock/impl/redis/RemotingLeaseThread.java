@@ -15,7 +15,7 @@ public class RemotingLeaseThread extends AbstractRemotingThread {
 
     @Override
     protected long getExecuteInterval() {
-        return lockContext.lockOptions().getLeaseIntervalMilliseconds();
+        return lockContext.options().getLeaseIntervalMilliseconds();
     }
 
     private void doLease() throws InterruptedException {

@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>site.hellooo</groupId>
-    <artifactId>hellooo-distributedlock</artifactId>
-    <version>0.0.5-GA</version>
+    <artifactId>halo-distributedlock</artifactId>
+    <version>0.0.6-GA</version>
 
     <properties>
         <project.build.sourceEncoding>UTF8</project.build.sourceEncoding>
@@ -21,7 +21,7 @@
             <artifactId>jedis</artifactId>
             <version>${jedis.version}</version>
         </dependency>
-        <!--         test dependencies  -->
+        <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -42,10 +42,10 @@
         </dependency>
     </dependencies>
 
-<!--    发布maven中央仓库所需数据 -->
+    <!-- 发布maven中央仓库所需数据 -->
     <name>distributed-lock</name>
     <description>a simple but reliable distributed lock implementation</description>
-    <url>https://github.com/hellooo-stack/hellooo-distributedlock</url>
+    <url>https://github.com/hellooo-stack/halo-distributedlock</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -53,9 +53,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/hellooo-stack/hellooo-distributedlock</url>
-        <connection>https://github.com/hellooo-stack/hellooo-distributedlock.git</connection>
-        <developerConnection>https://github.com/hellooo-stack/hellooo-distributedlock.git</developerConnection>
+        <url>https://github.com/hellooo-stack/halo-distributedlock</url>
+        <connection>https://github.com/hellooo-stack/halo-distributedlock.git</connection>
+        <developerConnection>https://github.com/hellooo-stack/halo-distributedlock.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <developers>
@@ -66,7 +66,7 @@
     </developers>
     <distributionManagement>
         <snapshotRepository>
-            <!--             对应settings.xml内配置的<server>下的id  -->
+            <!-- 对应settings.xml内配置的<server>下的id -->
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
@@ -80,7 +80,7 @@
             <id>release</id>
             <build>
                 <plugins>
-                    <!--             生成源码 jar  -->
+                    <!-- 生成源码 jar -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -94,7 +94,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!--             生成javadoc jar  -->
+                    <!-- 生成javadoc jar -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -108,7 +108,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!--             gpg 签名  -->
+                    <!-- gpg 签名 -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -123,7 +123,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!--             nexus 组件发布  -->
+                    <!-- nexus 组件发布 -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>

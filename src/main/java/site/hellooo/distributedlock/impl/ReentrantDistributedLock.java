@@ -34,12 +34,12 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
             private final AtomicReference<LockState<?>> holdingLockState = new AtomicReference<>();
 
             @Override
-            public String lockTarget() {
+            public String target() {
                 return lockTarget;
             }
 
             @Override
-            public LockOptions lockOptions() {
+            public LockOptions options() {
                 return lockOptions;
             }
 
@@ -88,7 +88,7 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         return currentNode;
     }
 
-//    enqueue node and return the prev node
+    // enqueue node and return the prev node
     private Node enqueue(final Node node) {
 
         while (true) {
@@ -115,12 +115,12 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
         while (true) {
             final Node prev = node.prev.get();
-//            only if prev node is head, and then we try to get the lock
+            // only if prev node is head, and then we try to get the lock
             if (prev == head.get() && tryLock()) {
-//                if tryLock success, it means that the prev node has release the lock,
-//                so we need to remove it from the queue
+                // if tryLock success, it means that the prev node has release the lock,
+                // so we need to remove it from the queue
                 head.set(node);
-//                set to null, help with gc
+                // set to null, help with gc
                 prev.next.set(null);
                 break;
             }
@@ -158,8 +158,6 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
 
         LockState<?> lockState = new LockStateBuilder(lockOptions)
                 .identifier(lockTarget)
-//                todo: need a value builder for difference state type
-//                .value()
                 .build();
         boolean locked = false;
         try {
@@ -208,11 +206,12 @@ public class ReentrantDistributedLock extends AbstractDistributedLock {
         }
         try {
             lockHandler.removeState(holdingLockState, lockContext);
-            lockCallback.afterUnlocked(lockContext);
         } catch (LockStateNotRemovedException ignored) {
-
         } finally {
+            lockCallback.afterUnlocked(lockContext);
+
             holdingThreadReference.compareAndSet(holdingThread, null);
+            holdingLockStateReference.compareAndSet(holdingLockState, null);
             unparkQueueHead();
         }
     }

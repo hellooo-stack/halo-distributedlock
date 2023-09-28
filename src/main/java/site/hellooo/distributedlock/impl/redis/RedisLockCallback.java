@@ -33,7 +33,7 @@ public class RedisLockCallback implements LockCallback {
         while (retryLockThread == null || retryLockThread.getState() == Thread.State.TERMINATED) {
             if (retryLockThreadReference.compareAndSet(retryLockThread, new RemotingRetryLockThread(lockContext))) {
                 retryLockThread = retryLockThreadReference.get();
-//                one process have only one running retryLockThread
+                // one process have only one running retryLockThread
                 retryLockThread.start();
             }
         }
@@ -72,7 +72,7 @@ public class RedisLockCallback implements LockCallback {
 
     @Override
     public void beforeParking(LockContext lockContext) {
-//        if current process not holding the lock, then we should start the retry lock thread
+        // if current process not holding the lock, then we should start the retry lock thread
         if (lockContext.holdingThread().get() == null) {
             startRetryLockThread();
         }

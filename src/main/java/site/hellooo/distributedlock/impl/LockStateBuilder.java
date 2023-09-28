@@ -16,9 +16,6 @@ public class LockStateBuilder {
     private Coordinator coordinator = DEFAULT_COORDINATOR;
     private String identifier;
 
-    private Object value;
-
-
     public LockStateBuilder() {
 
     }
@@ -38,23 +35,17 @@ public class LockStateBuilder {
         return this;
     }
 
-    public LockStateBuilder value(Object value) {
-        this.value = value;
-        return this;
-    }
-
     public LockState<?> build() {
         ArgChecker.check(!StringUtils.isEmpty(identifier), "identifier is empty (expected not empty).");
-//        ArgChecker.check(value != null, "value is null (expected not null).");
 
         String generatedIdentifier = lockOptions.getIdentifierPrefix() + this.identifier;
         generatedIdentifier = generatedIdentifier + lockOptions.getIdentifierSuffix();
 
         switch (coordinator) {
             case REDIS_SINGLETON:
-                if (this.value != null && !(this.value instanceof String)) {
-                    throw new IllegalArgumentException("Fatal: invalid type of 'value', type is " + value.getClass().getSimpleName());
-                }
+                // if (this.value == null || !(this.value instanceof String)) {
+                //     throw new IllegalArgumentException("Fatal: invalid type of 'value', type is " + (value == null ? "null" : value.getClass().getSimpleName()));
+                // }
 
                 return new RedisLockState(generatedIdentifier);
             case REDIS_CLUSTER:

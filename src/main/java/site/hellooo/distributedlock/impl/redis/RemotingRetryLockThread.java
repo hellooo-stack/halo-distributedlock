@@ -17,7 +17,7 @@ public class RemotingRetryLockThread extends AbstractRemotingThread {
 
     @Override
     protected long getExecuteInterval() {
-        return lockContext.lockOptions().getRetryIntervalMilliseconds();
+        return lockContext.options().getRetryIntervalMilliseconds();
     }
 
     private void doRetry() throws InterruptedException {
@@ -31,10 +31,10 @@ public class RemotingRetryLockThread extends AbstractRemotingThread {
         }
 
         RedisLockHandler lockHandler = (RedisLockHandler) lockContext.lockHandler();
-        boolean isStateExists = lockHandler.checkStateExists(lockContext.lockTarget());
+        boolean isStateExists = lockHandler.checkStateExists(lockContext.target());
         if (!isStateExists) {
-//            lock hold by other process has been released,
-//            then we unpark queued head thread in current process
+//             lock hold by other process has been released,
+//             then we unpark queued head thread in current process
             ReentrantDistributedLock lock = (ReentrantDistributedLock) lockContext.currentLock();
             lock.unparkQueueHead();
         }

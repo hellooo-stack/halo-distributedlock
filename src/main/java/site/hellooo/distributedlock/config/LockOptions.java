@@ -7,22 +7,20 @@ import site.hellooo.distributedlock.enums.Coordinator;
 import java.io.Serializable;
 import java.util.StringJoiner;
 
-// 提供用户使用的参数配置类
-// redis专用， 后续优化
+// Maybe a little hardcode for redis, It still needs to do some work if you want to use other coordinators,
+// such as zookeeper, etcd, etc.
 public class LockOptions implements Reusable<LockOptions>, Serializable {
 
-    //    prefix of lock identifier
+    // prefix of lock identifier
     private final String identifierPrefix;
-    //    suffix of lock identifier
+    // suffix of lock identifier
     private final String identifierSuffix;
-    //    milliseconds of retry thread execute interval
+    // milliseconds of retry thread execute interval
     private final long retryIntervalMilliseconds;
-    //    milliseconds of lease thread execute interval, should be smaller than leaseMilliseconds
+    //  milliseconds of lease thread execute interval, should be smaller than leaseMilliseconds
     private final long leaseIntervalMilliseconds;
-    //    milliseconds to lease per time
+    // milliseconds to lease per time
     private final long leaseMilliseconds;
-
-    //    todo
     private final Coordinator coordinator;
 
     private LockOptions(final String identifierPrefix,
@@ -36,6 +34,7 @@ public class LockOptions implements Reusable<LockOptions>, Serializable {
         ArgChecker.check(retryIntervalMilliseconds > 0, "retryIntervalMilliseconds is " + retryIntervalMilliseconds + " (expected > 0).");
         ArgChecker.check(leaseIntervalMilliseconds > 0, "leaseIntervalMilliseconds is " + leaseIntervalMilliseconds + " (expected > 0).");
         ArgChecker.check(leaseMilliseconds > 0, "leaseMilliseconds is " + leaseMilliseconds + " (expected > 0).");
+        ArgChecker.check(leaseMilliseconds > leaseIntervalMilliseconds, "leaseMilliseconds less than leaseIntervalMilliseconds (expected greater than leaseIntervalMilliseconds).");
         ArgChecker.check(coordinator != null, "coordinator is null (expected not null).");
 
         this.identifierPrefix = identifierPrefix;
@@ -99,13 +98,13 @@ public class LockOptions implements Reusable<LockOptions>, Serializable {
         private static final String DEFAULT_IDENTIFIER_PREFIX = "";
         private static final String DEFAULT_IDENTIFIER_SUFFIX = "";
 
-//        默认20毫秒重试一次
+        // 20 milliseconds by default
         private static final long DEFAULT_RETRY_INTERVAL_MILLISECONDS = 10L;
-//        默认1秒续期一次
+        // 1 second a lease by default
         private static final long DEFAULT_LEASE_INTERVAL_MILLISECONDS = 1000L;
-//        默认每次续期都将过期时间设置为5秒
+        // default lease time is 5 seconds
         private static final long DEFAULT_LEASE_MILLISECONDS = 5000L;
-
+        // default coordinator is redis(singleton)
         private static final Coordinator DEFAULT_COORDINATOR = Coordinator.REDIS_SINGLETON;
 
         private String identifierPrefix = DEFAULT_IDENTIFIER_PREFIX;

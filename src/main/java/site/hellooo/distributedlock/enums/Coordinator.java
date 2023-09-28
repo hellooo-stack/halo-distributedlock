@@ -1,6 +1,5 @@
 package site.hellooo.distributedlock.enums;
 
-// todo add clone method, some reusable interface may use that method to do the clone
 public enum Coordinator {
 
     REDIS_SINGLETON("redis_singleton"),
