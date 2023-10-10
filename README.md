@@ -2,7 +2,7 @@
 
 ![Build](https://img.shields.io/github/actions/workflow/status/hellooo-stack/halo-distributedlock/maven.yml)
 ![Code Size](https://img.shields.io/github/languages/code-size/hellooo-stack/halo-distributedlock)
-![Maven Central](https://img.shields.io/maven-central/v/site.hellooo/halo-distributedlock)
+![Maven Central](https://img.shields.io/maven-central/v/site.hellooo/halo-distributedlock-core)
 ![GitHub license](https://img.shields.io/github/license/hellooo-stack/halo-distributedlock)
 
 halo-distributedlock is a simple and reliable distributed lock implementation. 
