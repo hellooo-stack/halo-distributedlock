@@ -1,0 +1,6 @@
+{
+  "jedis": {
+    "host": "localhost",
+    "port": 6379
+  }
+}
